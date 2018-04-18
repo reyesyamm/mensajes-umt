@@ -11,7 +11,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	$datosEnJsonString = file_get_contents("php://input");
 
 	// 2. Convertimos a un array asociativo
-	$datos = json_decode($datosEnJsonString);
+	$datos = json_decode($datosEnJsonString, true);
 
 	// verificamos que los campos obligatorios existan
 	if(

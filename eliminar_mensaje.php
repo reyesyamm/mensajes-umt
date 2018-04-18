@@ -11,7 +11,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $datosEnJsonString = file_get_contents("php://input");
 
     // 2. Convertimos a un array asociativo
-    $datos = json_decode($datosEnJsonString);
+    $datos = json_decode($datosEnJsonString, true);
 
     if (
             isset($datos['id_usuario']) &&
@@ -20,9 +20,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         
         // primero obtenemos el mensaje
         $sqlSelect = "select * from mensaje where id_mensaje=? and id_usuario=? limit 1;";
-        $argumentos = [$datos['id_usuario'], $datos['id_mensaje']];
+        $argumentos = [$datos['id_mensaje'],$datos['id_usuario']];
         
-        $sentenciaSql = Database::getInstance()->getDb()->prepare($sqlSelect);
+        $db = Database::getInstance()->getDb();
+        
+        $sentenciaSql = $db->prepare($sqlSelect);
         $res = $sentenciaSql->execute($argumentos);
         
         if($res){
@@ -34,6 +36,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                try{
                    $sentenciaSqlDelete = $db->prepare($sqlDelete);
                    $estado = $sentenciaSqlDelete->execute($argumentos);
+                   $mensaje = "Mensaje eliminado";
                } catch (Exception $ex) {
                    $estado = false;
                    $mensaje = $ex->getMessage();
@@ -50,7 +53,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
             }else{
                 $respuestaIncorrecta = [
                     'estado' => false,
-                    'mensaje' => 'El mensaje solicitado no fue encontrado'
+                    'mensaje' => 'El mensaje solicitado no fue encontrado o no tienes permisos para eliminarlo'
                 ];
 
                 print json_encode($respuestaIncorrecta);
@@ -58,7 +61,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         }else{
             $respuestaIncorrecta = [
                 'estado' => false,
-                'mensaje' => 'El mensaje solicitado no fue encontrado'
+                'mensaje' => 'El mensaje no fue encontrado o no tienes permisos para eliminarlo'
             ];
 
             print json_encode($respuestaIncorrecta);

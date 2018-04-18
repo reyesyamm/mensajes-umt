@@ -12,7 +12,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	$datosEnJsonString = file_get_contents("php://input");
 
 	// 2. Convertimos a un array asociativo
-	$datos = json_decode($datosEnJsonString);
+	$datos = json_decode($datosEnJsonString, true);
 
 	// verificamos que los campos obligatorios existan
 	if(
@@ -34,8 +34,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$datos['correo'],
 			$datos['genero'],
 			md5($datos['contrasenia']), // md5 no deberia utilizarse para guardar contraseñas, pero para fines didacticos se utilizará en esta ocasión
-			$datos['fecha_creacion'],
-			$datos['fecha_actualizacion']
+			$fechaHoy,
+			$fechaHoy
 		];
 
 		$estado = false;
@@ -48,6 +48,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 			if($resultado){
 				$estado = true;
+                                $id = $db->lastInsertId();
+                                $datos['id_usuario'] = $id;
+                                $datos['fecha_creacion'] = $fechaHoy;
+                                $datos['fecha_actualizacion'] = $fechaHoy;
 				$mensaje = "Usuario creado correctamente";
 			}
 
